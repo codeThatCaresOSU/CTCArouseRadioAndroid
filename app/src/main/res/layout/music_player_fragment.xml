@@ -19,7 +19,8 @@
                 android:id="@+id/cover_album"
                 android:layout_width="200dp"
                 android:layout_height="200dp"
-                android:layout_gravity="center"/>
+                android:layout_gravity="center"
+                android:src="@drawable/samplecover"/>
     </androidx.cardview.widget.CardView>
 
     <TextView
