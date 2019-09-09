@@ -21,6 +21,8 @@ import com.bumptech.glide.Glide;
 public class MusicPlayerFragment extends Fragment {
 
     private MediaPlayer mediaPlayer;
+    private ImageView imgView;
+    private CardView cardView;
 
 
     //do stuff with data
@@ -37,14 +39,31 @@ public class MusicPlayerFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.music_player_fragment, container, false);
 
+        imgView = v.findViewById(R.id.cover_album);
+        cardView = v.findViewById(R.id.cover_card_view);
+
+        Bitmap originBitmap = Bitmap.createBitmap(BitmapFactory.decodeResource(getResources(), R
+                .drawable.samplecover));
+
+        Bitmap bitmap = getCircleBitmap(originBitmap);
+        //let bitmap fit parent
+        imgView.setScaleType(ImageView.ScaleType.FIT_XY);
+        Glide.with(this).load(bitmap).into(imgView);
+
+
         return v;
     }
 
-    public static Bitmap getCircleBitmap(Bitmap bitmap) {
+    /**
+     * Crop the square bitmap into square
+     * @param bitmap
+     * @return
+     */
+    public static Bitmap getCircleBitmap(Bitmap bitmap) {//把图片裁剪成圆形
         if (bitmap == null) {
             return null;
         }
-        bitmap = cropBitmap(bitmap);
+        bitmap = cropBitmap(bitmap);//裁剪成正方形
         try {
             Bitmap circleBitmap = Bitmap.createBitmap(bitmap.getWidth(),
                     bitmap.getHeight(), Bitmap.Config.ARGB_8888);
@@ -70,13 +89,19 @@ public class MusicPlayerFragment extends Fragment {
         }
     }
 
+    /**
+     * Crop the bitmap into square
+     * @param bitmap
+     * @return
+     */
     public static Bitmap cropBitmap(Bitmap bitmap) {
         int w = bitmap.getWidth();
         int h = bitmap.getHeight();
         int cropWidth = w >= h ? h : w;
+
         return Bitmap.createBitmap(bitmap, (bitmap.getWidth() - cropWidth) / 2,
                 (bitmap.getHeight() - cropWidth) / 2, cropWidth, cropWidth);
-
+    }
 
         class Player extends AsyncTask<String, Void, Boolean> {
             @Override
@@ -107,4 +132,3 @@ public class MusicPlayerFragment extends Fragment {
             }
         }
     }
-}
