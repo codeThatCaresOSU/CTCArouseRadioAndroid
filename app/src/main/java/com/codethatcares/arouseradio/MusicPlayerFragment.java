@@ -12,6 +12,8 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewPropertyAnimator;
+import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.animation.LinearInterpolator;
 import android.widget.ImageView;
 import android.widget.Button;
@@ -29,7 +31,7 @@ public class MusicPlayerFragment extends Fragment {
     private CardView cardView;
     private Animator diskAnimator;
     private Button mButton;
-    private boolean buttonState;
+    private boolean buttonPressed;
 
 
     //do stuff with data
@@ -50,7 +52,7 @@ public class MusicPlayerFragment extends Fragment {
         cardView = v.findViewById(R.id.cover_card_view);
         mButton = v.findViewById(R.id.play_stop_button);
 
-        buttonState = false;
+        buttonPressed = false;
 
         Bitmap originBitmap = Bitmap.createBitmap(BitmapFactory.decodeResource(getResources(), R
                 .drawable.samplecover));
@@ -62,7 +64,7 @@ public class MusicPlayerFragment extends Fragment {
 
 
         diskAnimator = ObjectAnimator.ofFloat(imgView, "rotation", 0f, 360.0f);
-        diskAnimator.setDuration(10000);
+        diskAnimator.setDuration(3000);
         //Set rotation speed to be linear
         diskAnimator.setInterpolator(new LinearInterpolator());
         ((ObjectAnimator) diskAnimator).setRepeatCount(-1);
@@ -71,18 +73,57 @@ public class MusicPlayerFragment extends Fragment {
         mButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if(!buttonState){
+                if(!buttonPressed){
                     if(diskAnimator.isStarted()){
+                        cardView.animate().translationZBy(-40).setListener(new Animator.AnimatorListener() {
+                            @Override
+                            public void onAnimationStart(Animator animator) {
+
+                            }
+
+                            @Override
+                            public void onAnimationEnd(Animator animator) {
+
+                            }
+
+                            @Override
+                            public void onAnimationCancel(Animator animator) {
+
+                            }
+
+                            @Override
+                            public void onAnimationRepeat(Animator animator) {
+
+                            }
+                        });
                         diskAnimator.resume();
-                        cardView.setElevation(cardView.getCardElevation() / 3);
                     }else{
                         diskAnimator.start();
                     }
-                    buttonState = true;
+                    buttonPressed = true;
                 }else{
-                    cardView.setElevation(cardView.getCardElevation() * 3);
-                    diskAnimator.pause();
-                    buttonState = false;
+                    cardView.animate().translationZBy(40).setListener(new Animator.AnimatorListener() {
+                        @Override
+                        public void onAnimationStart(Animator animator) {
+
+                        }
+
+                        @Override
+                        public void onAnimationEnd(Animator animator) {
+                            diskAnimator.pause();
+                        }
+
+                        @Override
+                        public void onAnimationCancel(Animator animator) {
+
+                        }
+
+                        @Override
+                        public void onAnimationRepeat(Animator animator) {
+
+                        }
+                    });
+                    buttonPressed = false;
                 }
             }
         });
@@ -92,6 +133,8 @@ public class MusicPlayerFragment extends Fragment {
 
         return v;
     }
+
+
 
     /**
      * Crop the square bitmap into square
