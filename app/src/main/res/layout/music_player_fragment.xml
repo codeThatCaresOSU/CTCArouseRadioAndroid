@@ -47,6 +47,7 @@
     <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:id="@+id/play_stop_button"
             android:text="play/stop"
             android:layout_below="@id/name_artist"
             android:layout_centerHorizontal="true"

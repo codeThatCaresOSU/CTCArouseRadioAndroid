@@ -1,5 +1,8 @@
 package com.codethatcares.arouseradio;
 
+import android.animation.Animator;
+import android.animation.ObjectAnimator;
+import android.animation.ValueAnimator;
 import android.graphics.*;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
@@ -9,6 +12,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.LinearInterpolator;
 import android.widget.ImageView;
 import android.widget.Button;
 import android.widget.Toast;
@@ -23,6 +27,9 @@ public class MusicPlayerFragment extends Fragment {
     private MediaPlayer mediaPlayer;
     private ImageView imgView;
     private CardView cardView;
+    private Animator diskAnimator;
+    private Button mButton;
+    private boolean buttonState;
 
 
     //do stuff with data
@@ -41,6 +48,9 @@ public class MusicPlayerFragment extends Fragment {
 
         imgView = v.findViewById(R.id.cover_album);
         cardView = v.findViewById(R.id.cover_card_view);
+        mButton = v.findViewById(R.id.play_stop_button);
+
+        buttonState = false;
 
         Bitmap originBitmap = Bitmap.createBitmap(BitmapFactory.decodeResource(getResources(), R
                 .drawable.samplecover));
@@ -51,6 +61,33 @@ public class MusicPlayerFragment extends Fragment {
         Glide.with(this).load(bitmap).into(imgView);
 
 
+        diskAnimator = ObjectAnimator.ofFloat(imgView, "rotation", 0f, 360.0f);
+        diskAnimator.setDuration(10000);
+        //Set rotation speed to be linear
+        diskAnimator.setInterpolator(new LinearInterpolator());
+        ((ObjectAnimator) diskAnimator).setRepeatCount(-1);
+        ((ObjectAnimator) diskAnimator).setRepeatMode(ValueAnimator.RESTART);
+
+        mButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(!buttonState){
+                    if(diskAnimator.isStarted()){
+                        diskAnimator.resume();
+                    }else{
+                        diskAnimator.start();
+                    }
+                    buttonState = true;
+                }else{
+                    diskAnimator.pause();
+                    buttonState = false;
+                }
+            }
+        });
+
+
+
+
         return v;
     }
 
@@ -59,11 +96,11 @@ public class MusicPlayerFragment extends Fragment {
      * @param bitmap
      * @return
      */
-    public static Bitmap getCircleBitmap(Bitmap bitmap) {//把图片裁剪成圆形
+    public static Bitmap getCircleBitmap(Bitmap bitmap) {
         if (bitmap == null) {
             return null;
         }
-        bitmap = cropBitmap(bitmap);//裁剪成正方形
+        bitmap = cropBitmap(bitmap);
         try {
             Bitmap circleBitmap = Bitmap.createBitmap(bitmap.getWidth(),
                     bitmap.getHeight(), Bitmap.Config.ARGB_8888);
