@@ -74,11 +74,13 @@ public class MusicPlayerFragment extends Fragment {
                 if(!buttonState){
                     if(diskAnimator.isStarted()){
                         diskAnimator.resume();
+                        cardView.setElevation(cardView.getCardElevation() / 3);
                     }else{
                         diskAnimator.start();
                     }
                     buttonState = true;
                 }else{
+                    cardView.setElevation(cardView.getCardElevation() * 3);
                     diskAnimator.pause();
                     buttonState = false;
                 }
