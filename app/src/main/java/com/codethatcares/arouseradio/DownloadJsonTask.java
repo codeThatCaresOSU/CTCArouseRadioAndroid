@@ -35,5 +35,7 @@ public class DownloadJsonTask extends AsyncTask<String, Void, String> {
     }
 
     @Override
-    
+    protected void onPostExecute(String s) {
+        callback.postJsonDownload(s);
+    }
 }

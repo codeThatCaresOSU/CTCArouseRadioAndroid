@@ -1,46 +1,34 @@
 package com.codethatcares.arouseradio;
 
-import android.animation.Animator;
-import android.animation.ObjectAnimator;
-import android.animation.ValueAnimator;
-import android.graphics.*;
-import android.media.AudioManager;
-import android.media.MediaPlayer;
-import android.os.AsyncTask;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewPropertyAnimator;
-import android.view.animation.AccelerateDecelerateInterpolator;
-import android.view.animation.LinearInterpolator;
 import android.widget.ImageView;
-import android.widget.Button;
-import android.widget.Toast;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.cardview.widget.CardView;
+import android.widget.TextView;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.Fragment;
-import com.bumptech.glide.Glide;
 
 public class MusicPlayerFragment extends Fragment {
 
-    private MediaPlayer mediaPlayer;
-    private ImageView imgView;
-    private CardView cardView;
-    private Animator diskAnimator;
-    private Button mButton;
-    private boolean buttonPressed;
+    //VIEWS
+    private ImageView albumImageView;
+    private ConstraintLayout root;
+    private TextView songTextView;
+    private TextView albumTextView;
+    private TextView artistTextView;
 
+    //DATA
+    private boolean buttonPressed;
 
     //do stuff with data
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mediaPlayer = new MediaPlayer();
-        mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
-        new Player().execute("https://file-examples.com/wp-content/uploads/2017/11/file_example_MP3_700KB.mp3");
+        buttonPressed = false;
     }
 
     //do stuff with views
@@ -48,169 +36,49 @@ public class MusicPlayerFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.music_player_fragment, container, false);
 
-        imgView = v.findViewById(R.id.cover_album);
-        cardView = v.findViewById(R.id.cover_card_view);
-        mButton = v.findViewById(R.id.play_stop_button);
+        //view binding
+        root = v.findViewById(R.id.root);
+        albumImageView = v.findViewById(R.id.cover_album);
+        songTextView = v.findViewById(R.id.name_song);
+        albumTextView = v.findViewById(R.id.album_name);
+        artistTextView = v.findViewById(R.id.name_artist);
 
-        buttonPressed = false;
+        //create the album art object based on the album art
+        Bitmap originBitmap = Bitmap.createBitmap(BitmapFactory.decodeResource(getResources(), R.drawable.samplecover));
+        final RotatingAlbumCover rotatingAlbumCover = new RotatingAlbumCover(albumImageView, originBitmap, getContext());
+        setViewColors(rotatingAlbumCover);
 
-        Bitmap originBitmap = Bitmap.createBitmap(BitmapFactory.decodeResource(getResources(), R
-                .drawable.samplecover));
-
-        Bitmap bitmap = getCircleBitmap(originBitmap);
-        //let bitmap fit parent
-        imgView.setScaleType(ImageView.ScaleType.FIT_XY);
-        Glide.with(this).load(bitmap).into(imgView);
-
-
-        diskAnimator = ObjectAnimator.ofFloat(imgView, "rotation", 0f, 360.0f);
-        diskAnimator.setDuration(3000);
-        //Set rotation speed to be linear
-        diskAnimator.setInterpolator(new LinearInterpolator());
-        ((ObjectAnimator) diskAnimator).setRepeatCount(-1);
-        ((ObjectAnimator) diskAnimator).setRepeatMode(ValueAnimator.RESTART);
-
-        mButton.setOnClickListener(new View.OnClickListener() {
+        //click listener to 'pause' and 'play' the rotation
+        albumImageView.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View view) {
+            public void onClick(View v) {
                 if(!buttonPressed){
-                    if(diskAnimator.isStarted()){
-                        cardView.animate().translationZBy(-40).setListener(new Animator.AnimatorListener() {
-                            @Override
-                            public void onAnimationStart(Animator animator) {
-
-                            }
-
-                            @Override
-                            public void onAnimationEnd(Animator animator) {
-
-                            }
-
-                            @Override
-                            public void onAnimationCancel(Animator animator) {
-
-                            }
-
-                            @Override
-                            public void onAnimationRepeat(Animator animator) {
-
-                            }
-                        });
-                        diskAnimator.resume();
+                    if(rotatingAlbumCover.isStarted()){
+                        rotatingAlbumCover.resumeAnimation();
                     }else{
-                        diskAnimator.start();
+                        rotatingAlbumCover.startAnimation();
                     }
                     buttonPressed = true;
-                }else{
-                    cardView.animate().translationZBy(40).setListener(new Animator.AnimatorListener() {
-                        @Override
-                        public void onAnimationStart(Animator animator) {
-
-                        }
-
-                        @Override
-                        public void onAnimationEnd(Animator animator) {
-                            diskAnimator.pause();
-                        }
-
-                        @Override
-                        public void onAnimationCancel(Animator animator) {
-
-                        }
-
-                        @Override
-                        public void onAnimationRepeat(Animator animator) {
-
-                        }
-                    });
+                } else {
+                    rotatingAlbumCover.pauseAnimation();
                     buttonPressed = false;
                 }
             }
         });
-
-
-
-
         return v;
     }
 
-
-
     /**
-     * Crop the square bitmap into square
-     * @param bitmap
-     * @return
+     * Set the color of the background and the text views
+     * based on the album art
+     * @param rac ->
+     *            the album art object to extract the colors from
      */
-    public static Bitmap getCircleBitmap(Bitmap bitmap) {
-        if (bitmap == null) {
-            return null;
-        }
-        bitmap = cropBitmap(bitmap);
-        try {
-            Bitmap circleBitmap = Bitmap.createBitmap(bitmap.getWidth(),
-                    bitmap.getHeight(), Bitmap.Config.ARGB_8888);
-            Canvas canvas = new Canvas(circleBitmap);
-            final Paint paint = new Paint();
-            final Rect rect = new Rect(0, 0, bitmap.getWidth(),
-                    bitmap.getHeight());
-            final RectF rectF = new RectF(new Rect(0, 0, bitmap.getWidth(),
-                    bitmap.getHeight()));
-            float roundPx = 0.0f;
-            roundPx = bitmap.getWidth();
-            paint.setAntiAlias(true);
-            canvas.drawARGB(0, 0, 0, 0);
-            paint.setColor(Color.WHITE);
-            canvas.drawRoundRect(rectF, roundPx, roundPx, paint);
-            paint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.SRC_IN));
-            final Rect src = new Rect(0, 0, bitmap.getWidth(),
-                    bitmap.getHeight());
-            canvas.drawBitmap(bitmap, src, rect, paint);
-            return circleBitmap;
-        } catch (Exception e) {
-            return bitmap;
-        }
+    private void setViewColors(RotatingAlbumCover rac) {
+        root.setBackgroundColor(rac.getAverageAlbumCover());
+        songTextView.setTextColor(rac.getComplementaryColor());
+        albumTextView.setTextColor(rac.getComplementaryColor());
+        artistTextView.setTextColor(rac.getComplementaryColor());
     }
 
-    /**
-     * Crop the bitmap into square
-     * @param bitmap
-     * @return
-     */
-    public static Bitmap cropBitmap(Bitmap bitmap) {
-        int w = bitmap.getWidth();
-        int h = bitmap.getHeight();
-        int cropWidth = w >= h ? h : w;
-
-        return Bitmap.createBitmap(bitmap, (bitmap.getWidth() - cropWidth) / 2,
-                (bitmap.getHeight() - cropWidth) / 2, cropWidth, cropWidth);
-    }
-
-        class Player extends AsyncTask<String, Void, Boolean> {
-            @Override
-            protected Boolean doInBackground(String... args) {
-                Boolean prepared;
-                try {
-                    mediaPlayer.setDataSource(args[0]);
-                    mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
-                        @Override
-                        public void onCompletion(MediaPlayer mediaPlayer) {
-                            Log.e("test", "on complete");
-                            mediaPlayer.stop();
-                            mediaPlayer.reset();
-                        }
-                    });
-                    mediaPlayer.prepare();
-                    prepared = true;
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    prepared = false;
-                }
-                return prepared;
-            }
-
-            @Override
-            protected void onPostExecute(Boolean result) {
-                mediaPlayer.start();
-            }
-        }
-    }
+}
