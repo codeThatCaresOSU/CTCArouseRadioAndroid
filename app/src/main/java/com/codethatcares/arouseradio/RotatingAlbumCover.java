@@ -14,9 +14,6 @@ public class RotatingAlbumCover {
     private ImageView viewHolder;
     private Bitmap albumArt;
     private Animator diskAnimator;
-    int red;
-    int green;
-    int blue;
 
     /**
      * Create the 'rotation image art' object
@@ -35,7 +32,6 @@ public class RotatingAlbumCover {
         diskAnimator.setInterpolator(new LinearInterpolator());
         ((ObjectAnimator) diskAnimator).setRepeatCount(-1);
         ((ObjectAnimator) diskAnimator).setRepeatMode(ValueAnimator.RESTART);
-        getAverageColor(albumArt);
     }
 
     /**
@@ -116,68 +112,4 @@ public class RotatingAlbumCover {
         diskAnimator.pause();
     }
 
-    /**
-     * gets the average color from the album art
-     * @param album -> the album art
-     */
-    private void getAverageColor(Bitmap album) {
-        long redBucket = 0;
-        long greenBucket = 0;
-        long blueBucket = 0;
-        long pixelCount = 0;
-        for (int y = 0; y < album.getHeight(); y++) {
-            for (int x = 0; x < album.getWidth(); x++) {
-                int c = album.getPixel(x, y);
-                pixelCount++;
-                redBucket += Color.red(c);
-                greenBucket += Color.green(c);
-                blueBucket += Color.blue(c);
-            }
-        }
-        red = (int) (redBucket / pixelCount);
-        green = (int) (greenBucket / pixelCount);
-        blue = (int) (blueBucket / pixelCount);
-    }
-
-    /**
-     *
-     * @return the average color of the album
-     */
-    public int getAverageAlbumCover() {
-        return Color.rgb(red, green, blue);
-    }
-
-    /**
-     *
-     * @return the complementary of the average color
-     */
-    public int getComplementaryColor() {
-        int maxPlusMin = max(red, green, blue) + min(red, green, blue);
-        int rPrime = maxPlusMin - red;
-        int bPrime = maxPlusMin - blue;
-        int gPrime = maxPlusMin - green;
-        return Color.rgb(rPrime, gPrime, bPrime);
-    }
-
-    /**
-     * the max of three ints
-     * @param r
-     * @param b
-     * @param g
-     * @return
-     */
-    private int max(int r, int b, int g) {
-        return Math.max(Math.max(r, g), b);
-    }
-
-    /**
-     * the min of three ints
-     * @param r
-     * @param b
-     * @param g
-     * @return
-     */
-    private int min(int r, int b, int g) {
-        return Math.min(Math.min(r, g), b);
-    }
 }

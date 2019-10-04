@@ -1,21 +1,22 @@
 package com.codethatcares.arouseradio;
 
 import android.os.AsyncTask;
+import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
-public class DownloadJsonTask extends AsyncTask<String, Void, String> {
-    JsonDownloadCallback callback;
+public class DownloadJsonTask extends AsyncTask<String, Void, JSONObject> {
+    NetworkCallbacks callback;
 
-    public DownloadJsonTask(JsonDownloadCallback callback) {
+    public DownloadJsonTask(NetworkCallbacks callback) {
         this.callback = callback;
     }
 
     @Override
-    protected String doInBackground(String... strings) {
+    protected JSONObject doInBackground(String... strings) {
         StringBuilder sb = new StringBuilder();
         try {
             URL jsonUrl = new URL(strings[0]);
@@ -31,11 +32,16 @@ public class DownloadJsonTask extends AsyncTask<String, Void, String> {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return sb.toString();
+        try {
+            return new JSONObject(sb.toString());
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 
     @Override
-    protected void onPostExecute(String s) {
+    protected void onPostExecute(JSONObject s) {
         callback.postJsonDownload(s);
     }
 }

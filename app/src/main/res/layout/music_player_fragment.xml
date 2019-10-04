@@ -12,7 +12,6 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:id="@+id/backgroundImage"
-            android:src="@drawable/samplecover2"
             android:scaleType="fitXY"/>
 
 
@@ -20,7 +19,6 @@
         android:id="@+id/cover_album"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:src="@drawable/samplecover2"
         android:layout_margin="32dp"
         app:layout_constraintDimensionRatio="1:1"
         app:layout_constraintVertical_bias=".1"
