@@ -1,7 +1,6 @@
 package com.codethatcares.arouseradio;
 
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.view.*;
 import android.widget.ImageView;
@@ -20,7 +19,7 @@ public class MusicPlayerFragment extends Fragment implements NetworkCallbacks {
 
     //DATA
     private boolean buttonPressed;
-    private BlurredBackground background;
+    private DynamicThemeFromAlbum background;
     private Track currentlyPlaying;
     private RotatingAlbumCover rotatingAlbumCover;
 
@@ -59,7 +58,7 @@ public class MusicPlayerFragment extends Fragment implements NetworkCallbacks {
     @Override
     public void postImageDownload(Bitmap image) {
         rotatingAlbumCover = new RotatingAlbumCover(albumImageView, image, getContext());
-        background = new BlurredBackground(image, 180, false);
+        background = new DynamicThemeFromAlbum(image, getContext());
         setViewColors(background);
         backgroundImage.setImageBitmap(background.getBlurredBitmap());
         //click listener to 'pause' and 'play' the rotation
@@ -87,11 +86,9 @@ public class MusicPlayerFragment extends Fragment implements NetworkCallbacks {
      * @param background ->
      *            the backround object to extract the colors from
      */
-    private void setViewColors(BlurredBackground background) {
+    private void setViewColors(DynamicThemeFromAlbum background) {
         //set the text color based on the background image
-        songTextView.setTextColor(background.getTextColorFromBackground());
-        albumTextView.setTextColor(background.getTextColorFromBackground());
-        artistTextView.setTextColor(background.getTextColorFromBackground());
+        background.setTextviewStyles(songTextView, artistTextView, albumTextView);
         ((MainActivity) getActivity()).setStatusBarColor(background.getStatusBarColorFromBackground());
     }
 
