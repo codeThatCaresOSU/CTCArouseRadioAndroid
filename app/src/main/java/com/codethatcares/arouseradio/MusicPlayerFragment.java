@@ -1,6 +1,7 @@
 package com.codethatcares.arouseradio;
 
 import android.graphics.Bitmap;
+import android.graphics.drawable.Animatable;
 import android.os.Bundle;
 import android.view.*;
 import android.widget.ImageView;
@@ -16,13 +17,14 @@ public class MusicPlayerFragment extends Fragment implements NetworkCallbacks {
     private TextView albumTextView;
     private TextView artistTextView;
     private ImageView backgroundImage;
+    private boolean buttonPlayed;
 
     //DATA
     private boolean buttonPressed;
     private DynamicThemeFromAlbum background;
     private Track currentlyPlaying;
     private RotatingAlbumCover rotatingAlbumCover;
-
+    private ImageView imageView;
     //do stuff with data
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -41,6 +43,9 @@ public class MusicPlayerFragment extends Fragment implements NetworkCallbacks {
         albumTextView = v.findViewById(R.id.album_name);
         artistTextView = v.findViewById(R.id.name_artist);
         backgroundImage = v.findViewById(R.id.backgroundImage);
+        imageView = v.findViewById(R.id.play_button);
+
+        buttonPlayed = false;
 
         DownloadJsonTask getLastfmData = new DownloadJsonTask(this);
         getLastfmData.execute(Constants.SONG_ENDPOINT);
@@ -61,21 +66,31 @@ public class MusicPlayerFragment extends Fragment implements NetworkCallbacks {
         background = new DynamicThemeFromAlbum(image, getContext());
         setViewColors(background);
         backgroundImage.setImageBitmap(background.getBlurredBitmap());
+
+        if(rotatingAlbumCover.isStarted()){
+            imageView.setImageResource(R.drawable.icon_play_animator);
+        }else{
+            imageView.setImageResource(R.drawable.icon_pause_animator);
+        }
         //click listener to 'pause' and 'play' the rotation
-        albumImageView.setOnClickListener(new View.OnClickListener() {
+        imageView.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View v) {
-                if(!buttonPressed){
+            public void onClick(View view) {
+                if(!buttonPlayed){
+                    imageView.setImageResource(R.drawable.icon_pause_animator);
                     if(rotatingAlbumCover.isStarted()){
                         rotatingAlbumCover.resumeAnimation();
-                    }else{
+                     }else{
                         rotatingAlbumCover.startAnimation();
                     }
-                    buttonPressed = true;
-                } else {
+                    buttonPlayed = true;
+                }else{
+                    imageView.setImageResource(R.drawable.icon_play_animator);
                     rotatingAlbumCover.pauseAnimation();
-                    buttonPressed = false;
+                    buttonPlayed = false;
                 }
+                Animatable animation = (Animatable) imageView.getDrawable();
+                animation.start();
             }
         });
     }
