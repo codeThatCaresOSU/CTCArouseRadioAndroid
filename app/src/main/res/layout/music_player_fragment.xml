@@ -27,6 +27,15 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"/>
 
+    <ImageView
+        android:id="@+id/pause_play_vector_overlay"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintStart_toStartOf="@id/cover_album"
+        app:layout_constraintTop_toTopOf="@id/cover_album"
+        app:layout_constraintEnd_toEndOf="@id/cover_album"
+        app:layout_constraintBottom_toBottomOf="@id/cover_album"/>
+
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

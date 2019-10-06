@@ -5,13 +5,18 @@ import android.animation.ObjectAnimator;
 import android.animation.ValueAnimator;
 import android.content.Context;
 import android.graphics.*;
+import android.graphics.drawable.Animatable;
+import android.graphics.drawable.Drawable;
+import android.os.Handler;
 import android.util.Log;
+import android.view.View;
 import android.view.animation.LinearInterpolator;
 import android.widget.ImageView;
 import com.bumptech.glide.Glide;
 
 public class RotatingAlbumCover {
     private ImageView viewHolder;
+    private ImageView pausePlayOverlay;
     private Bitmap albumArt;
     private Animator diskAnimator;
 
@@ -21,8 +26,9 @@ public class RotatingAlbumCover {
      * @param albumArt -> the image of the album art
      * @param context -> application context
      */
-    public RotatingAlbumCover(ImageView viewHolder, Bitmap albumArt, Context context) {
+    public RotatingAlbumCover(ImageView viewHolder, ImageView pausePlayOverlay, Bitmap albumArt, Context context) {
         this.viewHolder = viewHolder;
+        this.pausePlayOverlay = pausePlayOverlay;
         this.albumArt = getCircleBitmap(albumArt);
         this.viewHolder.setScaleType(ImageView.ScaleType.FIT_XY);
         Glide.with(context).load(this.albumArt).into(this.viewHolder);
@@ -32,6 +38,8 @@ public class RotatingAlbumCover {
         diskAnimator.setInterpolator(new LinearInterpolator());
         ((ObjectAnimator) diskAnimator).setRepeatCount(-1);
         ((ObjectAnimator) diskAnimator).setRepeatMode(ValueAnimator.RESTART);
+        pausePlayOverlay.setVisibility(View.INVISIBLE);
+
     }
 
     /**
@@ -94,22 +102,51 @@ public class RotatingAlbumCover {
     /**
      * start the animation of the circle
      */
-    public void startAnimation() {
+    public void startAnimation(int color) {
         diskAnimator.start();
+        pausePlayOverlay.setImageResource(R.drawable.ic_pause_animator);
+        pausePlayOverlay.setColorFilter(color);
+        Animatable animation = (Animatable) pausePlayOverlay.getDrawable();
+        animation.start();
     }
 
     /**
      * resume the animation (must have be started already)
      */
-    public void resumeAnimation() {
+    public void resumeAnimation(int color) {
         diskAnimator.resume();
+        pausePlayOverlay.setVisibility(View.VISIBLE);
+        pausePlayOverlay.setImageResource(R.drawable.ic_pause_animator);
+        pausePlayOverlay.setColorFilter(color);
+        Animatable animation = (Animatable) pausePlayOverlay.getDrawable();
+        animation.start();
+        final Handler handler = new Handler();
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                pausePlayOverlay.setVisibility(View.INVISIBLE);
+            }
+        }, 600);
     }
 
     /**
      * pause the animation
      */
-    public void pauseAnimation() {
+    public void pauseAnimation(int color) {
         diskAnimator.pause();
+        pausePlayOverlay.setVisibility(View.VISIBLE);
+        pausePlayOverlay.setImageResource(R.drawable.ic_play_animator);
+        pausePlayOverlay.setColorFilter(color);
+        Animatable animation = (Animatable) pausePlayOverlay.getDrawable();
+        animation.start();
+        final Handler handler = new Handler();
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                pausePlayOverlay.setVisibility(View.INVISIBLE);
+            }
+        }, 600);
+
     }
 
 }

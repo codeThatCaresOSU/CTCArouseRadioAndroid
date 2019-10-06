@@ -14,11 +14,11 @@ public class DynamicThemeFromAlbum {
     private static final float BLUR_RADIUS = 25f;
 
     private Bitmap blurredBitmap;
-    int red;
-    int green;
-    int blue;
-    int textColor;
-    int textOutline;
+    private int red;
+    private int green;
+    private int blue;
+    private int textColor;
+    private int textOutline;
 
     public DynamicThemeFromAlbum(Bitmap originalBitmap, Context context) {
         blurredBitmap = blur(context, originalBitmap);
@@ -97,7 +97,7 @@ public class DynamicThemeFromAlbum {
      *
      * @return the complementary of the average color
      */
-    private int getComplementaryColor() {
+    public int getComplementaryColor() {
         int maxPlusMin = max(red, green, blue) + min(red, green, blue);
         int rPrime = maxPlusMin - red;
         int bPrime = maxPlusMin - blue;

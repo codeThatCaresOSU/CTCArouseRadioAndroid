@@ -5,6 +5,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.drawable.Animatable;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.view.*;
@@ -22,6 +24,7 @@ public class MusicPlayerFragment extends Fragment implements NetworkCallbacks {
     private TextView albumTextView;
     private TextView artistTextView;
     private ImageView backgroundImage;
+    private ImageView pausePlayOverlay;
 
     //DATA
     private boolean buttonPressed;
@@ -40,8 +43,6 @@ public class MusicPlayerFragment extends Fragment implements NetworkCallbacks {
             MusicPlayerService.LocalBinder binder = (MusicPlayerService.LocalBinder) service;
             player = binder.getService();
             serviceBound = true;
-
-            Toast.makeText(getContext(), "Service Bound", Toast.LENGTH_SHORT).show();
         }
 
         @Override
@@ -56,7 +57,7 @@ public class MusicPlayerFragment extends Fragment implements NetworkCallbacks {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        buttonPressed = false;
+        buttonPressed = true;
         playAudio("https://upload.wikimedia.org/wikipedia/commons/6/6c/Grieg_Lyric_Pieces_Kobold.ogg");
 
     }
@@ -72,6 +73,7 @@ public class MusicPlayerFragment extends Fragment implements NetworkCallbacks {
         albumTextView = v.findViewById(R.id.album_name);
         artistTextView = v.findViewById(R.id.name_artist);
         backgroundImage = v.findViewById(R.id.backgroundImage);
+        pausePlayOverlay = v.findViewById(R.id.pause_play_vector_overlay);
 
         DownloadJsonTask getLastfmData = new DownloadJsonTask(this);
         getLastfmData.execute(Constants.SONG_JSON_ENDPOINT);
@@ -87,9 +89,9 @@ public class MusicPlayerFragment extends Fragment implements NetworkCallbacks {
 
     @Override
     public void postImageDownload(Bitmap image) {
-        rotatingAlbumCover = new RotatingAlbumCover(albumImageView, image, getContext());
-        rotatingAlbumCover.startAnimation();
+        rotatingAlbumCover = new RotatingAlbumCover(albumImageView, pausePlayOverlay, image, getContext());
         background = new DynamicThemeFromAlbum(image, getContext());
+        rotatingAlbumCover.startAnimation(background.getComplementaryColor());
         setViewColors(background);
         backgroundImage.setImageBitmap(background.getBlurredBitmap());
         //click listener to 'pause' and 'play' the rotation
@@ -98,15 +100,14 @@ public class MusicPlayerFragment extends Fragment implements NetworkCallbacks {
             public void onClick(View v) {
                 if(!buttonPressed){
                     if(rotatingAlbumCover.isStarted()){
-                        rotatingAlbumCover.resumeAnimation();
+                        rotatingAlbumCover.resumeAnimation(background.getComplementaryColor());
                     }else{
-                        rotatingAlbumCover.startAnimation();
+                        rotatingAlbumCover.startAnimation(background.getComplementaryColor());
                     }
                     buttonPressed = true;
                     player.resumeMedia();
-
                 } else {
-                    rotatingAlbumCover.pauseAnimation();
+                    rotatingAlbumCover.pauseAnimation(background.getComplementaryColor());
                     buttonPressed = false;
                     player.pauseMedia();
                 }
