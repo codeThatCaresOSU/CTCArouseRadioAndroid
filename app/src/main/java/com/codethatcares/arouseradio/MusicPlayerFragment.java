@@ -1,10 +1,16 @@
 package com.codethatcares.arouseradio;
 
+import android.content.ComponentName;
+import android.content.Context;
+import android.content.Intent;
+import android.content.ServiceConnection;
 import android.graphics.Bitmap;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.view.*;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 import androidx.fragment.app.Fragment;
 import org.json.JSONObject;
 
@@ -23,11 +29,36 @@ public class MusicPlayerFragment extends Fragment implements NetworkCallbacks {
     private Track currentlyPlaying;
     private RotatingAlbumCover rotatingAlbumCover;
 
+    private MusicPlayerService player;
+    boolean serviceBound = false;
+
+    //Binding this Client to the AudioPlayer Service
+    private ServiceConnection serviceConnection = new ServiceConnection() {
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            // We've bound to LocalService, cast the IBinder and get LocalService instance
+            MusicPlayerService.LocalBinder binder = (MusicPlayerService.LocalBinder) service;
+            player = binder.getService();
+            serviceBound = true;
+
+            Toast.makeText(getContext(), "Service Bound", Toast.LENGTH_SHORT).show();
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+            serviceBound = false;
+        }
+    };
+
+
+
     //do stuff with data
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         buttonPressed = false;
+        playAudio("https://upload.wikimedia.org/wikipedia/commons/6/6c/Grieg_Lyric_Pieces_Kobold.ogg");
+
     }
 
     //do stuff with views
@@ -43,8 +74,7 @@ public class MusicPlayerFragment extends Fragment implements NetworkCallbacks {
         backgroundImage = v.findViewById(R.id.backgroundImage);
 
         DownloadJsonTask getLastfmData = new DownloadJsonTask(this);
-        getLastfmData.execute(Constants.SONG_ENDPOINT);
-
+        getLastfmData.execute(Constants.SONG_JSON_ENDPOINT);
         return v;
     }
 
@@ -58,6 +88,7 @@ public class MusicPlayerFragment extends Fragment implements NetworkCallbacks {
     @Override
     public void postImageDownload(Bitmap image) {
         rotatingAlbumCover = new RotatingAlbumCover(albumImageView, image, getContext());
+        rotatingAlbumCover.startAnimation();
         background = new DynamicThemeFromAlbum(image, getContext());
         setViewColors(background);
         backgroundImage.setImageBitmap(background.getBlurredBitmap());
@@ -72,9 +103,12 @@ public class MusicPlayerFragment extends Fragment implements NetworkCallbacks {
                         rotatingAlbumCover.startAnimation();
                     }
                     buttonPressed = true;
+                    player.resumeMedia();
+
                 } else {
                     rotatingAlbumCover.pauseAnimation();
                     buttonPressed = false;
+                    player.pauseMedia();
                 }
             }
         });
@@ -96,5 +130,18 @@ public class MusicPlayerFragment extends Fragment implements NetworkCallbacks {
         songTextView.setText(track.getTrackName());
         albumTextView.setText(track.getAlbumName());
         artistTextView.setText(track.getArtist());
+    }
+
+    private void playAudio(String media) {
+        //Check is service is active
+        if (!serviceBound) {
+            Intent playerIntent = new Intent(getContext(), MusicPlayerService.class);
+            playerIntent.putExtra("media", media);
+            getActivity().startService(playerIntent);
+            getActivity().bindService(playerIntent, serviceConnection, Context.BIND_AUTO_CREATE);
+        } else {
+            //Service is active
+            //Send media with BroadcastReceiver
+        }
     }
 }

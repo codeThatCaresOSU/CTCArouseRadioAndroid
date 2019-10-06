@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">ArouseRadio</string>
+    <string name="music_service">Music Service</string>
 </resources>
