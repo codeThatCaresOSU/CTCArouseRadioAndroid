@@ -3,6 +3,7 @@ package com.codethatcares.arouseradio;
 import android.animation.Animator;
 import android.animation.ObjectAnimator;
 import android.animation.ValueAnimator;
+import android.app.Application;
 import android.content.Context;
 import android.graphics.*;
 import android.graphics.drawable.Animatable;
@@ -10,6 +11,8 @@ import android.graphics.drawable.Drawable;
 import android.os.Handler;
 import android.util.Log;
 import android.view.View;
+import android.view.animation.AlphaAnimation;
+import android.view.animation.AnimationUtils;
 import android.view.animation.LinearInterpolator;
 import android.widget.ImageView;
 import com.bumptech.glide.Glide;
@@ -19,6 +22,7 @@ public class RotatingAlbumCover {
     private ImageView pausePlayOverlay;
     private Bitmap albumArt;
     private Animator diskAnimator;
+    private Context context;
 
     /**
      * Create the 'rotation image art' object
@@ -27,6 +31,7 @@ public class RotatingAlbumCover {
      * @param context -> application context
      */
     public RotatingAlbumCover(ImageView viewHolder, ImageView pausePlayOverlay, Bitmap albumArt, Context context) {
+        this.context = context;
         this.viewHolder = viewHolder;
         this.pausePlayOverlay = pausePlayOverlay;
         this.albumArt = getCircleBitmap(albumArt);
@@ -120,13 +125,8 @@ public class RotatingAlbumCover {
         pausePlayOverlay.setColorFilter(color);
         Animatable animation = (Animatable) pausePlayOverlay.getDrawable();
         animation.start();
-        final Handler handler = new Handler();
-        handler.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                pausePlayOverlay.setVisibility(View.INVISIBLE);
-            }
-        }, 600);
+        pausePlayOverlay.startAnimation(AnimationUtils.loadAnimation(this.context,R.anim.fade_out));
+        pausePlayOverlay.setVisibility(View.GONE);
     }
 
     /**
@@ -139,14 +139,6 @@ public class RotatingAlbumCover {
         pausePlayOverlay.setColorFilter(color);
         Animatable animation = (Animatable) pausePlayOverlay.getDrawable();
         animation.start();
-        final Handler handler = new Handler();
-        handler.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                pausePlayOverlay.setVisibility(View.INVISIBLE);
-            }
-        }, 600);
-
     }
 
 }
