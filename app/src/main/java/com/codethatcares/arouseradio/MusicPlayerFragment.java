@@ -94,6 +94,7 @@ public class MusicPlayerFragment extends Fragment implements NetworkCallbacks {
         rotatingAlbumCover.startAnimation(background.getComplementaryColor());
         setViewColors(background);
         backgroundImage.setImageBitmap(background.getBlurredBitmap());
+        player.displayNotification(currentlyPlaying.getTrackName(), currentlyPlaying.getArtist(), image);
         //click listener to 'pause' and 'play' the rotation
         albumImageView.setOnClickListener(new View.OnClickListener() {
             @Override

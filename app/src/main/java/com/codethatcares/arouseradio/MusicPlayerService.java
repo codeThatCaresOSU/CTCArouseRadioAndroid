@@ -1,13 +1,21 @@
 package com.codethatcares.arouseradio;
 
+import android.app.Notification;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.os.Binder;
+import android.os.Build;
 import android.os.IBinder;
 import android.util.Log;
+import androidx.core.app.NotificationCompat;
+import androidx.core.app.NotificationManagerCompat;
 
 import java.io.IOException;
 
@@ -21,6 +29,10 @@ public class MusicPlayerService extends Service implements MediaPlayer.OnComplet
     private int resumePosition;
     private AudioManager audioManager;
 
+    @Override
+    public void onCreate() {
+        super.onCreate();
+    }
 
     @Override
     public IBinder onBind(Intent intent) {
@@ -204,5 +216,28 @@ public class MusicPlayerService extends Service implements MediaPlayer.OnComplet
         }
         mediaPlayer.prepareAsync();
     }
+    private void createNotificationChannel() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            CharSequence name = "Arouse music player";
+            String description = "The music player notification";
+            int importance = NotificationManager.IMPORTANCE_DEFAULT;
+            NotificationChannel channel = new NotificationChannel(Constants.CHANNEL_ID, name, importance);
+            channel.setDescription(description);
+            NotificationManager notificationManager = getSystemService(NotificationManager.class);
+            notificationManager.createNotificationChannel(channel);
+        }
+    }
 
+    public void displayNotification(String songName, String artistName, Bitmap albumArt) {
+        createNotificationChannel();
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(this, Constants.CHANNEL_ID)
+                .setSmallIcon(R.drawable.ic_launcher_foreground)
+                .setLargeIcon(albumArt)
+                .setContentTitle(artistName)
+                .setContentText(songName)
+                .setCategory(NotificationCompat.CATEGORY_SERVICE)
+                .setPriority(NotificationCompat.PRIORITY_DEFAULT);
+        NotificationManagerCompat notificationManager = NotificationManagerCompat.from(this);
+        notificationManager.notify(Constants.NOTIFICATION_CHANNEL, builder.build());
+    }
 }
