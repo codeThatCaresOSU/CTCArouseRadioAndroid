@@ -9,6 +9,7 @@ import android.graphics.BitmapFactory;
 import android.graphics.drawable.Animatable;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.util.Log;
 import android.view.*;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -58,7 +59,7 @@ public class MusicPlayerFragment extends Fragment implements NetworkCallbacks {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         buttonPressed = true;
-        playAudio("https://upload.wikimedia.org/wikipedia/commons/6/6c/Grieg_Lyric_Pieces_Kobold.ogg");
+        playAudio(Constants.MUSIC_ENDPOINT);
 
     }
 
@@ -82,6 +83,7 @@ public class MusicPlayerFragment extends Fragment implements NetworkCallbacks {
 
     @Override
     public void postJsonDownload(JSONObject json) {
+        Log.e("test", json.toString());
         currentlyPlaying = new Track(json);
         setTextFromSong(currentlyPlaying);
         currentlyPlaying.downladAlbumArt(this);
@@ -143,6 +145,8 @@ public class MusicPlayerFragment extends Fragment implements NetworkCallbacks {
         } else {
             //Service is active
             //Send media with BroadcastReceiver
+            Log.e("error playing audio", "error starting the media stream");
+
         }
     }
 }

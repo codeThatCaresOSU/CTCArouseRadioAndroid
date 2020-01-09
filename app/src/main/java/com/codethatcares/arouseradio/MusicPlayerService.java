@@ -49,7 +49,7 @@ public class MusicPlayerService extends Service implements MediaPlayer.OnComplet
 
     @Override
     public void onBufferingUpdate(MediaPlayer mp, int percent) {
-        //invoked indicating buffering status of a media resource being streamed over the netework
+        //invoked indicating buffering status of a media resource being streamed over the network
     }
 
     @Override
@@ -87,7 +87,6 @@ public class MusicPlayerService extends Service implements MediaPlayer.OnComplet
     public void onPrepared(MediaPlayer mp) {
         //invoked when the media source is ready for playback
         playMedia();
-        Log.e("test", "play media called");
     }
 
     @Override
@@ -175,19 +174,20 @@ public class MusicPlayerService extends Service implements MediaPlayer.OnComplet
     public void pauseMedia() {
         if (mediaPlayer.isPlaying()) {
             mediaPlayer.pause();
-            resumePosition = mediaPlayer.getCurrentPosition();
+            //resumePosition = mediaPlayer.getCurrentPosition();
         }
     }
 
     public void resumeMedia() {
         if (!mediaPlayer.isPlaying()) {
-            mediaPlayer.seekTo(resumePosition);
+            //mediaPlayer.seekTo(resumePosition);
             mediaPlayer.start();
         }
     }
 
     private void initMediaPlayer() {
         mediaPlayer = new MediaPlayer();
+
         mediaPlayer.setOnCompletionListener(this);
         mediaPlayer.setOnErrorListener(this);
         mediaPlayer.setOnPreparedListener(this);
