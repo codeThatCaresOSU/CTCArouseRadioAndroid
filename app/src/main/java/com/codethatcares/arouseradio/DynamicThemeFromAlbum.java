@@ -7,6 +7,7 @@ import android.renderscript.Allocation;
 import android.renderscript.Element;
 import android.renderscript.RenderScript;
 import android.renderscript.ScriptIntrinsicBlur;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 public class DynamicThemeFromAlbum {
@@ -93,6 +94,12 @@ public class DynamicThemeFromAlbum {
         }
     }
 
+    public void setIconColrs(ImageView ... views) {
+        for (ImageView view : views) {
+            view.setColorFilter(textColor);
+        }
+    }
+
     /**
      *
      * @return the complementary of the average color
@@ -103,6 +110,10 @@ public class DynamicThemeFromAlbum {
         int bPrime = maxPlusMin - blue;
         int gPrime = maxPlusMin - green;
         return Color.rgb(rPrime, gPrime, bPrime);
+    }
+
+    public int getTriadicColor() {
+        return Color.rgb(green, blue, red);
     }
 
     /**

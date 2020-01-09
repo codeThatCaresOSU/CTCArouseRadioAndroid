@@ -9,6 +9,7 @@ import android.graphics.BitmapFactory;
 import android.graphics.drawable.Animatable;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
 import android.view.*;
 import android.widget.ImageView;
@@ -26,6 +27,9 @@ public class MusicPlayerFragment extends Fragment implements NetworkCallbacks {
     private TextView artistTextView;
     private ImageView backgroundImage;
     private ImageView pausePlayOverlay;
+    private ImageView artistIcon;
+    private ImageView songIcon;
+    private ImageView albumIcon;
 
     //DATA
     private boolean buttonPressed;
@@ -75,6 +79,9 @@ public class MusicPlayerFragment extends Fragment implements NetworkCallbacks {
         artistTextView = v.findViewById(R.id.name_artist);
         backgroundImage = v.findViewById(R.id.backgroundImage);
         pausePlayOverlay = v.findViewById(R.id.pause_play_vector_overlay);
+        artistIcon = v.findViewById(R.id.artist_icon);
+        songIcon = v.findViewById(R.id.music_icon);
+        albumIcon = v.findViewById(R.id.album_icon);
 
         DownloadJsonTask getLastfmData = new DownloadJsonTask(this);
         getLastfmData.execute(Constants.SONG_JSON_ENDPOINT);
@@ -93,7 +100,7 @@ public class MusicPlayerFragment extends Fragment implements NetworkCallbacks {
     public void postImageDownload(Bitmap image) {
         rotatingAlbumCover = new RotatingAlbumCover(albumImageView, pausePlayOverlay, image, getContext());
         background = new DynamicThemeFromAlbum(image, getContext());
-        rotatingAlbumCover.startAnimation(background.getComplementaryColor());
+        rotatingAlbumCover.startAnimation(background.getTriadicColor());
         setViewColors(background);
         backgroundImage.setImageBitmap(background.getBlurredBitmap());
         //click listener to 'pause' and 'play' the rotation
@@ -102,14 +109,14 @@ public class MusicPlayerFragment extends Fragment implements NetworkCallbacks {
             public void onClick(View v) {
                 if(!buttonPressed){
                     if(rotatingAlbumCover.isStarted()){
-                        rotatingAlbumCover.resumeAnimation(background.getComplementaryColor());
+                        rotatingAlbumCover.resumeAnimation(background.getTriadicColor());
                     }else{
-                        rotatingAlbumCover.startAnimation(background.getComplementaryColor());
+                        rotatingAlbumCover.startAnimation(background.getTriadicColor());
                     }
                     buttonPressed = true;
                     player.resumeMedia();
                 } else {
-                    rotatingAlbumCover.pauseAnimation(background.getComplementaryColor());
+                    rotatingAlbumCover.pauseAnimation(background.getTriadicColor());
                     buttonPressed = false;
                     player.pauseMedia();
                 }
@@ -126,6 +133,7 @@ public class MusicPlayerFragment extends Fragment implements NetworkCallbacks {
     private void setViewColors(DynamicThemeFromAlbum background) {
         //set the text color based on the background image
         background.setTextviewStyles(songTextView, artistTextView, albumTextView);
+        background.setIconColrs(artistIcon, songIcon, albumIcon);
         ((MainActivity) getActivity()).setStatusBarColor(background.getStatusBarColorFromBackground());
     }
 
